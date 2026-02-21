@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/latency",
-      "destination": "/api/latency"
+      "destination": "/api/latency.py"
     }
   ],
   "headers": [
