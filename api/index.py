@@ -1,8 +1,7 @@
 import json
 import os
-import numpy as np
+import math
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 
 app = FastAPI()
@@ -22,6 +21,7 @@ async def add_cors(request, call_next):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     return response
 
+
 @app.options("/{path:path}")
 async def options_handler():
     return Response(
@@ -33,12 +33,12 @@ async def options_handler():
         }
     )
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, "data", "q-vercel-latency.json")
 
 with open(DATA_PATH) as f:
     telemetry = json.load(f)
-
 
 
 @app.post("/latency")
@@ -54,8 +54,8 @@ async def latency_metrics(request: Request):
 
         rows = [r for r in telemetry if r.get("region") == region]
 
-        latencies = [r.get("latency_ms", 0) for r in rows if "latency_ms" in r]
-        uptimes = [r.get("uptime", 0) for r in rows if "uptime" in r]
+        latencies = [r["latency_ms"] for r in rows if "latency_ms" in r]
+        uptimes = [r["uptime_pct"] for r in rows if "uptime_pct" in r]
 
         if not latencies:
             results[region] = {
@@ -66,13 +66,25 @@ async def latency_metrics(request: Request):
             }
             continue
 
-        avg_latency = float(sum(latencies) / len(latencies))
+        # Mean
+        avg_latency = sum(latencies) / len(latencies)
 
+        # Correct percentile calculation
         sorted_lat = sorted(latencies)
-        idx = int(0.95 * (len(sorted_lat) - 1))
-        p95_latency = float(sorted_lat[idx])
+        n = len(sorted_lat)
 
-        avg_uptime = float(sum(uptimes) / len(uptimes)) if uptimes else 0
+        pos = 0.95 * (n - 1)
+        lower = math.floor(pos)
+        upper = math.ceil(pos)
+
+        if lower == upper:
+            p95_latency = sorted_lat[int(pos)]
+        else:
+            weight = pos - lower
+            p95_latency = sorted_lat[lower] * (1 - weight) + sorted_lat[upper] * weight
+
+        # Mean uptime
+        avg_uptime = sum(uptimes) / len(uptimes) if uptimes else 0
 
         breaches = sum(1 for v in latencies if v > threshold)
 
