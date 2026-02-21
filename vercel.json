@@ -1,7 +1,13 @@
 {
+  "routes": [
+    {
+      "src": "^/latency$",
+      "dest": "/api/latency.py"
+    }
+  ],
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/latency",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "POST, GET, OPTIONS" },
