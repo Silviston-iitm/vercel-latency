@@ -1,8 +1,8 @@
 {
-  "routes": [
+  "rewrites": [
     {
-      "src": "^/latency$",
-      "dest": "/api/latency.py"
+      "source": "/latency",
+      "destination": "/api/latency"
     }
   ],
   "headers": [
