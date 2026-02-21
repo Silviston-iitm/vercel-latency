@@ -1,0 +1,10 @@
+[project]
+name = "vercel2"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.129.0",
+    "numpy>=2.4.2",
+    "uvicorn>=0.41.0",
+]
