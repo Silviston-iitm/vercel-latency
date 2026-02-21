@@ -72,7 +72,7 @@ def percentile_95(values):
 # -----------------------------
 # POST endpoint
 # -----------------------------
-@app.post("/")
+@app.post("/latency")
 async def latency_metrics(request: Request):
     body = await request.json()
 
